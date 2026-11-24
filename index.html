@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Hisab Book</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
@@ -417,9 +418,106 @@ input[type="number"], input[type="text"], input[type="date"], select {
 
   var S = { mode: 'pending', months: {}, exps: [], base: null, loaded: { m: false, e: false }, stale: false, err: '' };
 
+
+  /* ---------- Google Drive sync ---------- */
+  var CLIENT_ID = 'YOUR_CLIENT_ID.apps.googleusercontent.com';
+  var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+  var DRIVE_FILE = 'hisab-book-data.json', DRIVE_FLAG = 'hisab-drive-on';
+  var D = { on: false, token: null, exp: 0, fileId: null, tc: null, wait: null, timer: null, msg: 'Sign in to keep a copy of your data in your own Google Drive.' };
+
+  function driveInit() {
+    if (D.tc) return true;
+    if (!(window.google && google.accounts && google.accounts.oauth2)) return false;
+    D.tc = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: DRIVE_SCOPE,
+      callback: function (r) {
+        var w = D.wait; D.wait = null;
+        if (r && r.access_token) { D.token = r.access_token; D.exp = Date.now() + (r.expires_in - 60) * 1000; if (w) w.ok(); }
+        else if (w) w.fail(new Error((r && r.error) || 'auth'));
+      },
+      error_callback: function (e) { var w = D.wait; D.wait = null; if (w) w.fail(new Error((e && e.type) || 'popup')); }
+    });
+    return true;
+  }
+  function driveAuth(interactive) {
+    if (D.token && Date.now() < D.exp) return Promise.resolve();
+    return new Promise(function (ok, fail) {
+      if (!driveInit()) { fail(new Error('Google script not loaded')); return; }
+      D.wait = { ok: ok, fail: fail };
+      D.tc.requestAccessToken({ prompt: interactive ? 'consent' : '' });
+    });
+  }
+  function dfetch(url, opt) {
+    opt = opt || {}; opt.headers = Object.assign({ Authorization: 'Bearer ' + D.token }, opt.headers || {});
+    return fetch(url, opt).then(function (r) { if (!r.ok) throw new Error('Drive ' + r.status); return r; });
+  }
+  function driveFind() {
+    var q = encodeURIComponent("name='" + DRIVE_FILE + "' and trashed=false");
+    return dfetch('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id)&spaces=drive')
+      .then(function (r) { return r.json(); }).then(function (j) { return j.files && j.files[0] ? j.files[0].id : null; });
+  }
+  function drivePayload() { return JSON.stringify({ app: 'hisab-book', v: 1, months: S.months, exps: S.exps }); }
+  function driveUpload() {
+    var body = drivePayload();
+    if (D.fileId) {
+      return dfetch('https://www.googleapis.com/upload/drive/v3/files/' + D.fileId + '?uploadType=media',
+        { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body });
+    }
+    var b = '-----hisab' + Date.now();
+    var multi = '--' + b + '\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify({ name: DRIVE_FILE, mimeType: 'application/json' }) +
+      '\r\n--' + b + '\r\nContent-Type: application/json\r\n\r\n' + body + '\r\n--' + b + '--';
+    return dfetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+      { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: multi })
+      .then(function (r) { return r.json(); }).then(function (j) { D.fileId = j.id; });
+  }
+  function driveMerge(remote) {
+    var seen = {}; S.exps.forEach(function (e) { seen[e.id] = 1; });
+    (remote.exps || []).forEach(function (e) { if (!seen[e.id]) S.exps.push(e); });
+    S.months = Object.assign({}, remote.months || {}, S.months);
+  }
+  async function driveSync(interactive) {
+    try {
+      D.msg = 'Syncing...'; render();
+      await driveAuth(interactive);
+      D.fileId = D.fileId || await driveFind();
+      if (D.fileId) {
+        var remote = await (await dfetch('https://www.googleapis.com/drive/v3/files/' + D.fileId + '?alt=media')).json();
+        driveMerge(remote);
+        try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps })); } catch (e) {}
+      }
+      await driveUpload();
+      D.on = true; try { localStorage.setItem(DRIVE_FLAG, '1'); } catch (e) {}
+      D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').';
+    } catch (e) {
+      D.msg = D.on ? 'Drive sync failed. Tap Sync now to retry.' : 'Could not sign in. Check the Client ID and that this site is an authorized origin.';
+    }
+    render();
+  }
+  window.driveQueue = function () {
+    if (!D.on) return;
+    clearTimeout(D.timer);
+    D.timer = setTimeout(async function () {
+      try { await driveAuth(false); await driveUpload(); D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').'; }
+      catch (e) { D.msg = 'Drive sync paused. Open Settings and tap Sync now.'; }
+      render();
+    }, 1500);
+  };
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act]'); if (!t) return;
+    var a = t.getAttribute('data-act');
+    if (a === 'drive-on' || a === 'drive-sync') driveSync(true);
+    else if (a === 'drive-off') {
+      if (D.token && window.google) { try { google.accounts.oauth2.revoke(D.token); } catch (e) {} }
+      D.on = false; D.token = null; D.fileId = null; try { localStorage.removeItem(DRIVE_FLAG); } catch (e) {}
+      D.msg = 'Disconnected. Data stays on this device.'; render();
+    }
+  });
+  try { if (localStorage.getItem(DRIVE_FLAG)) { D.on = true; D.msg = 'Connected to Google Drive. Tap Sync now to refresh.'; } } catch (e) {}
+
   /* ---------- storage ---------- */
   function persistLocal() {
     try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps })); } catch (e) {}
+    if (window.driveQueue) window.driveQueue();
   }
   function loadLocal() {
     try {
@@ -722,6 +820,12 @@ input[type="number"], input[type="text"], input[type="date"], select {
       '<button type="button" class="ghost" data-act="export-csv">Expenses (CSV)</button></div>' +
       '<div class="field" style="margin-top:14px"><label for="imp-file">Restore from a backup file</label><input id="imp-file" type="file" accept=".json,application/json"></div>' +
       '<p class="hint" id="bk-msg" role="status"></p></div>';
+    html += '<div class="card"><div class="card-head"><h2>Google Drive</h2></div>' +
+      '<p class="hint">' + esc(D.msg) + '</p>' +
+      '<div class="sheet-actions" style="flex-wrap:wrap">' +
+      (D.on ? '<button type="button" class="primary" data-act="drive-sync">Sync now</button><button type="button" class="ghost" data-act="drive-off">Disconnect</button>'
+            : '<button type="button" class="primary" data-act="drive-on">Sign in with Google</button>') +
+      '</div></div>';
     $('#v-settings').innerHTML = html;
     syncTheme();
   }
