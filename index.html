@@ -282,6 +282,74 @@ input[type="number"], input[type="text"], input[type="date"], select {
 .mrow .ms { color: var(--muted); font-size: 13px; }
 .mrow[aria-current="true"] { background: var(--accent-soft); color: var(--accent); border-radius: 12px; border-top-color: transparent; }
 .mrow[aria-current="true"] + .mrow { border-top-color: transparent; }
+
+/* ===== glass theme ===== */
+:root {
+  --bg: #E8DDCB; --surface: rgba(255,255,255,.42); --ink: #26221B; --muted: #6E6558; --line: rgba(70,52,25,.14);
+  --track: rgba(70,52,25,.13); --accent: #E9B824; --accent-soft: rgba(245,200,75,.32); --on-accent: #1B1812;
+  --dock: rgba(255,255,255,.42); --dock-pill: rgba(255,255,255,.78); --hero-a: rgba(38,34,27,.80); --hero-b: rgba(82,68,44,.62);
+  --good: #2C7A4D; --good-bg: rgba(44,122,77,.16); --bad: #C0392B; --bad-bg: rgba(192,57,43,.15);
+  --pill-bg: #1C1A16; --pill-ink: #FFFFFF; --glass-bd: rgba(255,255,255,.62); --glass-sh: 0 10px 34px rgba(90,65,30,.14);
+  --scene:
+    radial-gradient(60% 45% at 8% 12%, rgba(118,142,80,.62) 0, transparent 70%),
+    radial-gradient(55% 40% at 92% 8%, rgba(255,247,230,.98) 0, transparent 72%),
+    radial-gradient(60% 45% at 85% 62%, rgba(178,128,82,.55) 0, transparent 70%),
+    radial-gradient(70% 50% at 12% 90%, rgba(222,198,156,.9) 0, transparent 72%),
+    radial-gradient(40% 30% at 50% 45%, rgba(246,236,218,.8) 0, transparent 70%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #090807; --surface: rgba(255,255,255,.07); --ink: #F2EDE3; --muted: #A99F8F; --line: rgba(255,255,255,.12);
+    --track: rgba(255,255,255,.13); --accent: #F5C84B; --accent-soft: rgba(245,200,75,.2); --on-accent: #1B1812;
+    --dock: rgba(255,255,255,.08); --dock-pill: rgba(255,255,255,.17); --hero-a: rgba(255,255,255,.1); --hero-b: rgba(255,255,255,.04);
+    --good: #66D6A0; --good-bg: rgba(102,214,160,.16); --bad: #FF8F82; --bad-bg: rgba(255,143,130,.16);
+    --pill-bg: #F5C84B; --pill-ink: #1B1812; --glass-bd: rgba(255,255,255,.15); --glass-sh: 0 12px 36px rgba(0,0,0,.5);
+    --scene:
+      radial-gradient(55% 40% at 8% 10%, rgba(66,84,40,.55) 0, transparent 70%),
+      radial-gradient(50% 35% at 92% 8%, rgba(120,98,60,.32) 0, transparent 72%),
+      radial-gradient(55% 40% at 85% 62%, rgba(104,66,34,.42) 0, transparent 70%),
+      radial-gradient(65% 45% at 12% 92%, rgba(84,66,42,.45) 0, transparent 72%);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #090807; --surface: rgba(255,255,255,.07); --ink: #F2EDE3; --muted: #A99F8F; --line: rgba(255,255,255,.12);
+  --track: rgba(255,255,255,.13); --accent: #F5C84B; --accent-soft: rgba(245,200,75,.2); --on-accent: #1B1812;
+  --dock: rgba(255,255,255,.08); --dock-pill: rgba(255,255,255,.17); --hero-a: rgba(255,255,255,.1); --hero-b: rgba(255,255,255,.04);
+  --good: #66D6A0; --good-bg: rgba(102,214,160,.16); --bad: #FF8F82; --bad-bg: rgba(255,143,130,.16);
+  --pill-bg: #F5C84B; --pill-ink: #1B1812; --glass-bd: rgba(255,255,255,.15); --glass-sh: 0 12px 36px rgba(0,0,0,.5);
+  --scene:
+    radial-gradient(55% 40% at 8% 10%, rgba(66,84,40,.55) 0, transparent 70%),
+    radial-gradient(50% 35% at 92% 8%, rgba(120,98,60,.32) 0, transparent 72%),
+    radial-gradient(55% 40% at 85% 62%, rgba(104,66,34,.42) 0, transparent 70%),
+    radial-gradient(65% 45% at 12% 92%, rgba(84,66,42,.45) 0, transparent 72%);
+}
+body { background: var(--bg); }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: var(--scene); pointer-events: none; }
+#gate { background: var(--scene), var(--bg) !important; }
+.card, .sheet, .dock, #gate > div {
+  background: var(--surface) !important; border: 1px solid var(--glass-bd) !important; box-shadow: var(--glass-sh), inset 0 1px 0 rgba(255,255,255,.35);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5); backdrop-filter: blur(24px) saturate(1.5);
+}
+.card, #gate > div { border-radius: 24px !important; }
+.sheet { border-radius: 26px 26px 0 0 !important; background: color-mix(in srgb, var(--surface) 70%, var(--bg)) !important; }
+.dock { background: var(--dock) !important; border-radius: 28px; }
+.hero {
+  border: 1px solid var(--glass-bd); border-radius: 26px; box-shadow: var(--glass-sh), inset 0 1px 0 rgba(255,255,255,.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
+}
+.scrim { -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); background: rgba(10,8,5,.35); }
+.primary, .fab { background: var(--pill-bg) !important; color: var(--pill-ink) !important; border-radius: 99px; }
+.fab { box-shadow: 0 10px 26px rgba(0,0,0,.28); }
+.pill.fixed { color: var(--ink); }
+.seg { background: var(--track); border-radius: 14px; }
+.seg button[aria-pressed="true"] { background: var(--dock-pill); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+.ghost { border-color: var(--glass-bd); border-radius: 99px; background: rgba(255,255,255,.12); }
+input, select, textarea { background: rgba(255,255,255,.34); border: 1px solid var(--glass-bd); border-radius: 12px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) input, :root:not([data-theme="light"]) select, :root:not([data-theme="light"]) textarea { background: rgba(255,255,255,.07); } }
+:root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea { background: rgba(255,255,255,.07); }
+.meter i, .bar i { background: var(--accent); }
+.hero .meter { background: rgba(255,255,255,.22); }
+.dock-item[aria-current="page"] { color: var(--ink); }
 </style>
 
 <div class="shell">
@@ -363,7 +431,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
 
 <div id="gate" style="position:fixed;inset:0;z-index:9999;background:var(--bg,#F2F2F7);color:var(--ink,#15202E);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;overflow:auto">
   <div style="width:100%;max-width:360px;background:var(--surface,#fff);border:1px solid var(--line,#DCE2EB);border-radius:20px;padding:28px 22px;text-align:center;font-family:var(--font-body,system-ui,sans-serif)">
-    <h1 style="margin:0 0 4px;font:600 26px var(--font-display,system-ui,sans-serif)">Hisab Book</h1>
+    <h1 style="margin:0 0 4px;font:600 26px var(--font-display,system-ui,sans-serif)">Welcome Saif..!</h1>
     <p id="gate-sub" style="margin:0 0 20px;color:var(--muted,#5A6778);font-size:14px">Log in to continue</p>
     <form id="gate-login" autocomplete="on">
       <input id="g-id" type="text" inputmode="email" autocomplete="username" placeholder="ID" style="width:100%;box-sizing:border-box;padding:13px 14px;margin-bottom:10px;border:1px solid var(--line,#DCE2EB);border-radius:12px;font-size:16px;background:transparent;color:inherit">
@@ -391,6 +459,23 @@ input[type="number"], input[type="text"], input[type="date"], select {
     { id: 'other', name: 'Other' }
   ];
   var MIN_MONTH = '2024-01';
+  var LANG = 'en'; try { LANG = localStorage.getItem('hisab-lang') || 'en'; } catch (e) {}
+  var q = '';
+  var BN = {'Home':'হোম','Months':'মাস','Category':'ক্যাটেগরি','Whole Month':'পুরো মাস','Settings':'সেটিংস','+ Add expense':'+ খরচ যোগ করুন','Add expense':'খরচ যোগ করুন','Edit expense':'খরচ এডিট','Close':'বন্ধ','Delete':'মুছুন','Save':'সেভ','Amount':'টাকার পরিমাণ','Date':'তারিখ','Note':'নোট','Current Salary':'বর্তমান বেতন','Edit':'এডিট','Set salary':'বেতন দিন','After DPS':'DPS-এর পর','Spent':'খরচ হয়েছে','Left to spend':'খরচের জন্য বাকি','Expenses':'খরচসমূহ','All categories':'সব ক্যাটেগরি','No expenses yet':'এখনো কোনো খরচ নেই','Budgets by category':'ক্যাটেগরি অনুযায়ী বাজেট','Fixed':'নির্ধারিত','No budget':'বাজেট নেই','Over budget':'বাজেট ছাড়িয়েছে','Nearly used':'প্রায় শেষ','On track':'ঠিক আছে','Spending through the month':'মাস জুড়ে খরচ','Running total by day':'দিনভিত্তিক মোট','Choose a month':'মাস বাছুন','Tap to open it':'খুলতে চাপুন','Save settings':'সেটিংস সেভ করুন','Theme':'থিম','Light':'লাইট','Dark':'ডার্ক','Backup and restore':'ব্যাকআপ ও রিস্টোর','Salary (Tk)':'বেতন (টাকা)','DPS per month (Tk)':'মাসিক DPS (টাকা)','Sync now':'এখনই সিঙ্ক','Sign out':'সাইন আউট','Log in':'লগইন','Sign in with Google':'গুগল দিয়ে সাইন ইন','Hisab Book':'হিসাব বুক','Welcome Saif..!':'স্বাগতম সাইফ..!','Log in to continue':'চালিয়ে যেতে লগইন করুন','Saved on this device only.':'শুধু এই ডিভাইসে সেভ আছে।','Category budgets':'ক্যাটেগরি বাজেট','Category split':'ক্যাটেগরি ভাগ','Share of this month':'এই মাসের অংশ','Compared with last month':'গত মাসের সাথে তুলনা','Recurring expenses':'নিয়মিত মাসিক খরচ','Language':'ভাষা','Total':'মোট','Add recurring':'নিয়মিত খরচ যোগ করুন','Remove':'সরান','House Bill':'বাসা বিল','Grocery':'মুদি','Kacha Bazar':'কাঁচা বাজার','Parents':'বাবা-মা','Transfer':'ট্রান্সফার','Other':'অন্যান্য'};
+  var BNP = {'ID':'আইডি','Password':'পাসওয়ার্ড','Search note, amount, category':'নোট, টাকা বা ক্যাটেগরি খুঁজুন'};
+  function applyLang() {
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) {
+      var tg = n.parentNode && n.parentNode.tagName; if (tg === 'SCRIPT' || tg === 'STYLE') continue;
+      if (n.__o === undefined) n.__o = n.nodeValue;
+      var k = n.__o.trim(), want = (LANG === 'bn' && BN[k]) ? n.__o.replace(k, BN[k]) : n.__o;
+      if (n.nodeValue !== want) n.nodeValue = want;
+    }
+    document.querySelectorAll('[placeholder]').forEach(function (el) {
+      if (el.__p === undefined) el.__p = el.getAttribute('placeholder');
+      el.setAttribute('placeholder', (LANG === 'bn' && BNP[el.__p]) || el.__p);
+    });
+  }
   var LS_KEY = 'hisab-book-v1';
 
   function $(s) { return document.querySelector(s); }
@@ -421,7 +506,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
   }
   function daysIn(key) { var a = key.split('-'); return new Date(+a[0], +a[1], 0).getDate(); }
   function shiftMonth(key, d) { var a = key.split('-'); var dt = new Date(+a[0], +a[1] - 1 + d, 1); return dt.getFullYear() + '-' + pad(dt.getMonth() + 1); }
-  function monthLabel(key) { var a = key.split('-'); return new Date(+a[0], +a[1] - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' }); }
+  function monthLabel(key) { var a = key.split('-'); return new Date(+a[0], +a[1] - 1, 1).toLocaleString(LANG === 'bn' ? 'bn-BD' : 'en-US', { month: 'long', year: 'numeric' }); }
   function catName(id) { for (var i = 0; i < CATS.length; i++) if (CATS[i].id === id) return CATS[i].name; return 'Other'; }
 
   var todayISO = isoDate(new Date());
@@ -431,7 +516,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
   var editing = null;
   var delArmed = false;
 
-  var S = { mode: 'pending', months: {}, exps: [], base: null, loaded: { m: false, e: false }, stale: false, err: '' };
+  var S = { mode: 'pending', months: {}, exps: [], del: {}, rec: [], base: null, loaded: { m: false, e: false }, stale: false, err: '' };
 
 
   /* ---------- Google Drive sync ---------- */
@@ -471,7 +556,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
     return dfetch('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id)&spaces=drive')
       .then(function (r) { return r.json(); }).then(function (j) { return j.files && j.files[0] ? j.files[0].id : null; });
   }
-  function drivePayload() { return JSON.stringify({ app: 'hisab-book', v: 1, months: S.months, exps: S.exps }); }
+  function drivePayload() { return JSON.stringify({ app: 'hisab-book', v: 2, months: S.months, exps: S.exps, del: S.del, rec: S.rec }); }
   function driveUpload() {
     var body = drivePayload();
     if (D.fileId) {
@@ -485,25 +570,33 @@ input[type="number"], input[type="text"], input[type="date"], select {
       { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: multi })
       .then(function (r) { return r.json(); }).then(function (j) { D.fileId = j.id; });
   }
-  function driveMerge(remote) {
-    var seen = {}; S.exps.forEach(function (e) { seen[e.id] = 1; });
-    (remote.exps || []).forEach(function (e) { if (!seen[e.id]) S.exps.push(e); });
-    S.months = Object.assign({}, remote.months || {}, S.months);
+  function ut(o) { return (o && (o.ut || o.ts)) || 0; }
+  function newest(list) { var m = {}; list.forEach(function (e) { if (e && e.id) { var c = m[e.id]; if (!c || ut(e) >= ut(c)) m[e.id] = e; } }); return m; }
+  function mergeRemote(r) {
+    var del = Object.assign({}, r.del || {});
+    Object.keys(S.del).forEach(function (k) { del[k] = Math.max(del[k] || 0, S.del[k] || 0); });
+    function alive(e) { return !(del[e.id] && del[e.id] >= ut(e)); }
+    var em = newest((r.exps || []).concat(S.exps)); S.exps = Object.keys(em).map(function (k) { return em[k]; }).filter(alive);
+    var rm = newest((r.rec || []).concat(S.rec)); S.rec = Object.keys(rm).map(function (k) { return rm[k]; }).filter(alive);
+    var mo = Object.assign({}, r.months || {});
+    Object.keys(S.months).forEach(function (k) { if (!mo[k] || ut(S.months[k]) >= ut(mo[k])) mo[k] = S.months[k]; });
+    S.months = mo; S.del = del;
+  }
+  function saveLocalOnly() { try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps, del: S.del, rec: S.rec })); } catch (e) {} }
+  async function driveCycle() {
+    D.fileId = D.fileId || await driveFind();
+    if (D.fileId) { mergeRemote(await (await dfetch('https://www.googleapis.com/drive/v3/files/' + D.fileId + '?alt=media')).json()); }
+    applyRecurring(); saveLocalOnly();
+    await driveUpload(); D.last = Date.now();
   }
   async function driveSync(interactive) {
     try {
       D.ok = false; D.msg = 'Syncing...'; render();
-      await driveAuth(interactive);
-      D.fileId = D.fileId || await driveFind();
-      if (D.fileId) {
-        var remote = await (await dfetch('https://www.googleapis.com/drive/v3/files/' + D.fileId + '?alt=media')).json();
-        driveMerge(remote);
-        try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps })); } catch (e) {}
-      }
-      await driveUpload();
-      D.on = true; D.ok = true; try { localStorage.setItem(DRIVE_FLAG, '1'); } catch (e) {}
+      await driveAuth(interactive); await driveCycle();
+      D.on = true; D.ok = true; D.fail = false; try { localStorage.setItem(DRIVE_FLAG, '1'); } catch (e) {}
       D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').';
     } catch (e) {
+      D.fail = true;
       D.msg = D.on ? 'Drive sync failed. Tap Sync now to retry.' : 'Could not sign in. Check the Client ID and that this site is an authorized origin.';
     }
     render();
@@ -512,11 +605,14 @@ input[type="number"], input[type="text"], input[type="date"], select {
     if (!D.on) return;
     clearTimeout(D.timer);
     D.timer = setTimeout(async function () {
-      try { await driveAuth(false); await driveUpload(); D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').'; }
-      catch (e) { D.msg = 'Drive sync paused. Open Settings and tap Sync now.'; }
+      try { await driveAuth(false); await driveCycle(); D.fail = false; D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').'; }
+      catch (e) { D.fail = true; D.msg = 'Drive sync paused. Open Settings and tap Sync now.'; }
       render();
     }, 1500);
   };
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && D.ok && D.token && Date.now() < D.exp) driveCycle().then(function () { render(); }).catch(function () {});
+  });
   document.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-act]'); if (!t) return;
     var a = t.getAttribute('data-act');
@@ -531,13 +627,13 @@ input[type="number"], input[type="text"], input[type="date"], select {
 
   /* ---------- storage ---------- */
   function persistLocal() {
-    try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps })); } catch (e) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps, del: S.del, rec: S.rec })); } catch (e) {}
     if (window.driveQueue) window.driveQueue();
   }
   function loadLocal() {
     try {
       var r = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-      if (r) { S.months = r.months || {}; S.exps = r.exps || []; }
+      if (r) { S.months = r.months || {}; S.exps = r.exps || []; S.del = r.del || {}; S.rec = r.rec || []; }
     } catch (e) {}
   }
   function localId() { return 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -545,19 +641,19 @@ input[type="number"], input[type="text"], input[type="date"], select {
   var store = {
     setMonth: async function (key, data) {
       if (S.mode === 'cloud') { await S.base.collection('months').doc(key).set(data); }
-      else { S.months[key] = data; persistLocal(); render(); }
+      else { S.months[key] = Object.assign({}, data, { ut: Date.now() }); persistLocal(); render(); }
     },
     addExp: async function (obj) {
       if (S.mode === 'cloud') { await S.base.collection('expenses').add(obj); }
-      else { S.exps = S.exps.concat([Object.assign({ id: localId() }, obj)]); persistLocal(); render(); }
+      else { S.exps = S.exps.concat([Object.assign({ id: localId(), ut: Date.now() }, obj)]); persistLocal(); render(); }
     },
     setExp: async function (id, obj) {
       if (S.mode === 'cloud') { await S.base.collection('expenses').doc(id).set(obj); }
-      else { S.exps = S.exps.map(function (e) { return e.id === id ? Object.assign({ id: id }, obj) : e; }); persistLocal(); render(); }
+      else { S.exps = S.exps.map(function (e) { return e.id === id ? Object.assign({ id: id, ut: Date.now() }, obj) : e; }); persistLocal(); render(); }
     },
     delExp: async function (id) {
       if (S.mode === 'cloud') { await S.base.collection('expenses').doc(id).delete(); }
-      else { S.exps = S.exps.filter(function (e) { return e.id !== id; }); persistLocal(); render(); }
+      else { S.del[id] = Date.now(); S.exps = S.exps.filter(function (e) { return e.id !== id; }); persistLocal(); render(); }
     }
   };
 
@@ -590,7 +686,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
       }, fail);
     } else {
       S.mode = 'local';
-      loadLocal();
+      loadLocal(); applyRecurring();
       S.loaded = { m: true, e: true };
       render();
     }
@@ -641,16 +737,58 @@ input[type="number"], input[type="text"], input[type="date"], select {
     TABS.forEach(function (t) { $('#v-' + t).hidden = t !== tab; });
     $('#fab').hidden = tab === 'settings' || tab === 'months';
   }
+  function applyRecurring() {
+    var now = new Date(), cur = now.getFullYear() + '-' + pad(now.getMonth() + 1), today = isoDate(now), ch = false;
+    S.rec.forEach(function (r) {
+      if (S.del[r.id] || !r.from) return;
+      for (var m = r.from < MIN_MONTH ? MIN_MONTH : r.from; m <= cur; m = shiftMonth(m, 1)) {
+        var id = 'r' + r.id + '-' + m;
+        if (S.del[id] || S.exps.some(function (e) { return e.id === id; })) continue;
+        var date = m + '-' + pad(Math.min(r.day, daysIn(m)));
+        if (date > today) continue;
+        S.exps.push({ id: id, date: date, month: m, cat: r.cat, sub: r.sub || '', amount: r.amount, note: r.note || 'Recurring', ts: Date.now(), ut: Date.now() }); ch = true;
+      }
+    });
+    if (ch) saveLocalOnly();
+  }
   function renderStatus() {
     var t = '';
     if (S.mode === 'pending') t = 'Loading your saved data...';
     else if (S.err) t = 'Saved data cannot be reached right now.';
     else if (S.stale) t = 'Your saved data has not loaded yet. What you see may be out of date.';
     else if (S.mode === 'cloud') t = 'Saved to your account. Only you can see this data.';
-    else t = 'Saved on this device only.';
+    else if (!D.on) t = 'Saved on this device only.';
+    else if (D.ok && !D.fail) t = 'Synced with Google Drive' + (D.last ? ' at ' + new Date(D.last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') + '.';
+    else t = 'Google Drive sync paused. Open Settings and tap Sync now.';
     $('#status').textContent = t;
   }
 
+  function budgetCard(m) {
+    var st = m.st, rows = '';
+    CATS.forEach(function (c) {
+      var sp = m.byCat[c.id], b = Number(st.budgets[c.id]) || 0; if (!(b > 0 || sp > 0)) return;
+      var pc = b > 0 ? sp / b * 100 : 0, state = b > 0 ? (pc >= st.budgetPct ? 'bad' : 'good') : 'none';
+      rows += '<div class="crow"><div class="crow-top"><span class="name">' + esc(c.name) + '</span><span class="amt num">' + money(sp) + (b > 0 ? ' <small>of ' + money(b) + '</small>' : '') + '</span></div><div class="bar ' + state + '"><i style="width:' + Math.min(100, pc).toFixed(1) + '%"></i></div></div>';
+    });
+    return rows ? '<div class="card"><div class="card-head"><h2>Category budgets</h2></div><div class="rows">' + rows + '</div></div>' : '';
+  }
+  function splitCard(m) {
+    if (!(m.total > 0)) return '';
+    var rows = CATS.filter(function (c) { return m.byCat[c.id] > 0; }).sort(function (a, b) { return m.byCat[b.id] - m.byCat[a.id]; }).map(function (c) {
+      var pc = m.byCat[c.id] / m.total * 100;
+      return '<div class="crow"><div class="crow-top"><span class="name">' + esc(c.name) + '</span><span class="amt num">' + money(m.byCat[c.id]) + ' <small>' + pc.toFixed(0) + '%</small></span></div><div class="bar good"><i style="width:' + pc.toFixed(1) + '%"></i></div></div>';
+    }).join('');
+    return '<div class="card"><div class="card-head"><h2>Category split</h2><span>Share of this month</span></div><div class="rows">' + rows + '</div></div>';
+  }
+  function compareCard(m) {
+    var pk = shiftMonth(curMonth, -1), pm = summarize(pk);
+    if (!(m.total > 0 || pm.total > 0)) return '';
+    function dif(a, b) { var d = a - b; if (!d) return '<span class="num">same</span>'; return '<span class="num" style="color:var(--' + (d > 0 ? 'bad,#C73030' : 'good,#1E8E5A') + ')">' + (d > 0 ? '+' : '−') + money(Math.abs(d)) + '</span>'; }
+    function row(name, a, b) { return '<div class="crow"><div class="crow-top"><span class="name">' + esc(name) + '</span><span class="amt num">' + money(a) + ' <small>vs ' + money(b) + '</small></span></div><div class="crow-bot"><span></span>' + dif(a, b) + '</div></div>'; }
+    var rows = row('Total', m.total, pm.total);
+    CATS.forEach(function (c) { if (m.byCat[c.id] > 0 || pm.byCat[c.id] > 0) rows += row(c.name, m.byCat[c.id], pm.byCat[c.id]); });
+    return '<div class="card"><div class="card-head"><h2>Compared with last month</h2><span>' + esc(monthLabel(pk)) + '</span></div><div class="rows">' + rows + '</div></div>';
+  }
   function renderHome() {
     var m = summarize(curMonth), st = m.st;
     var avail = st.salary - st.dps, left = avail - m.total;
@@ -676,7 +814,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
       '</div>' +
     '</div>';
 
-    html += expensesHTML();
+    html += budgetCard(m) + expensesHTML();
     $('#v-home').innerHTML = html;
   }
 
@@ -707,7 +845,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
 
   function renderWhole() {
     var m = summarize(curMonth), st = m.st;
-    $('#v-whole').innerHTML = '<div class="card"><div class="card-head"><h2>Spending through the month</h2><span>Running total by day</span></div><div id="chart"></div></div>';
+    $('#v-whole').innerHTML = '<div class="card"><div class="card-head"><h2>Spending through the month</h2><span>Running total by day</span></div><div id="chart"></div></div>' + splitCard(m) + compareCard(m);
     renderChart(m, st);
   }
 
@@ -774,15 +912,19 @@ input[type="number"], input[type="text"], input[type="date"], select {
     el.innerHTML = s;
   }
 
+  function matchQ(e) {
+    if (!q) return true;
+    return (catName(e.cat) + ' ' + (e.sub || '') + ' ' + (e.note || '') + ' ' + e.amount).toLowerCase().indexOf(q.toLowerCase()) >= 0;
+  }
   function expensesHTML() {
     var list = S.exps.filter(function (e) {
-      return String(e.date || '').slice(0, 7) === curMonth && (filterCat === 'all' || e.cat === filterCat);
+      return String(e.date || '').slice(0, 7) === curMonth && (filterCat === 'all' || e.cat === filterCat) && matchQ(e);
     }).sort(function (a, b) { return b.date.localeCompare(a.date) || ((b.ts || 0) - (a.ts || 0)); });
     var total = list.reduce(function (a, e) { return a + (Number(e.amount) || 0); }, 0);
     var opts = '<option value="all">All categories</option>' + CATS.map(function (c) {
       return '<option value="' + c.id + '"' + (filterCat === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>';
     }).join('');
-    var html = '<div class="card"><div class="card-head"><h2>Expenses</h2></div><div class="filters"><select id="filter" aria-label="Filter by category">' + opts + '</select>' +
+    var html = '<div class="card"><div class="card-head"><h2>Expenses</h2></div><input id="q" type="search" placeholder="Search note, amount, category" value="' + esc(q) + '" style="width:100%;box-sizing:border-box;margin:0 0 10px;padding:11px 12px;border:1px solid var(--line,#DCE2EB);border-radius:12px;background:transparent;color:inherit;font-size:15px"><div class="filters"><select id="filter" aria-label="Filter by category">' + opts + '</select>' +
       '<span class="num"><b>' + money(total) + '</b> <span class="muted">in ' + list.length + (list.length === 1 ? ' entry' : ' entries') + '</span></span></div>';
     if (!list.length) {
       html += '<div class="empty"><strong>No expenses yet</strong>Tap "+ Add expense" to log your first one for ' + esc(monthLabel(curMonth)) + '.</div>';
@@ -835,6 +977,14 @@ input[type="number"], input[type="text"], input[type="date"], select {
       '<button type="button" class="ghost" data-act="export-csv">Expenses (CSV)</button></div>' +
       '<div class="field" style="margin-top:14px"><label for="imp-file">Restore from a backup file</label><input id="imp-file" type="file" accept=".json,application/json"></div>' +
       '<p class="hint" id="bk-msg" role="status"></p></div>';
+    html += '<div class="card"><div class="card-head"><h2>Language</h2></div><div class="seg" role="group"><button type="button" data-act="lang" data-l="en" aria-pressed="' + (LANG === 'en') + '">English</button><button type="button" data-act="lang" data-l="bn" aria-pressed="' + (LANG === 'bn') + '">বাংলা</button></div></div>';
+    var rl = S.rec.map(function (r) { return '<div class="crow"><div class="crow-top"><span class="name">' + esc(catName(r.cat) + (r.sub ? ' · ' + r.sub : '')) + (r.note ? ' · ' + esc(r.note) : '') + '</span><span class="amt num">' + money(r.amount) + '</span></div><div class="crow-bot"><span>Every month on day ' + r.day + '</span><button type="button" class="ghost" data-act="rec-del" data-id="' + esc(r.id) + '">Remove</button></div></div>'; }).join('');
+    var inp = 'style="width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--line,#DCE2EB);border-radius:10px;background:transparent;color:inherit;font-size:15px;margin-bottom:8px"';
+    html += '<div class="card"><div class="card-head"><h2>Recurring expenses</h2></div><div class="rows">' + rl + '</div><p class="hint">Added automatically every month, like rent or wifi. Edit or delete a single month from the expense list.</p>' +
+      '<select id="r-cat" ' + inp + '>' + CATS.map(function (c) { return '<option value="' + c.id + '">' + esc(c.name) + '</option>'; }).join('') + '</select>' +
+      '<select id="r-sub" ' + inp + '>' + CATS[0].subs.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select>' +
+      '<input id="r-amt" type="number" inputmode="decimal" min="0" placeholder="Amount (Tk)" ' + inp + '><input id="r-day" type="number" inputmode="numeric" min="1" max="31" placeholder="Day of month (1-31)" ' + inp + '><input id="r-note" type="text" placeholder="Note (optional)" ' + inp + '>' +
+      '<button type="button" class="primary" data-act="rec-add">Add recurring</button><p id="r-err" class="hint" style="color:var(--bad,#C73030)"></p></div>';
     html += '<div class="card"><div class="card-head"><h2>Google Drive</h2></div>' +
       '<p class="hint">' + esc(D.msg) + '</p>' +
       '<div class="sheet-actions" style="flex-wrap:wrap">' +
@@ -846,7 +996,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
   }
 
   function render() {
-    renderHead(); renderStatus();
+    renderHead(); renderStatus(); setTimeout(applyLang, 0);
     if (tab === 'home') renderHome();
     else if (tab === 'months') renderMonths();
     else if (tab === 'category') renderCategory();
@@ -855,6 +1005,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
       var a = document.activeElement;
       if (!(a && a.tagName === 'INPUT' && $('#v-settings').contains(a))) renderSettings();
     }
+    applyLang();
   }
 
   /* ---------- actions ---------- */
@@ -991,6 +1142,24 @@ input[type="number"], input[type="text"], input[type="date"], select {
     else if (a === 'save-settings') saveSettings();
     else if (a === 'export-json') exportJSON();
     else if (a === 'export-csv') exportCSV();
+  });
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act]'); if (!t) return;
+    var a = t.getAttribute('data-act');
+    if (a === 'lang') { LANG = t.getAttribute('data-l'); try { localStorage.setItem('hisab-lang', LANG); } catch (e) {} render(); }
+    else if (a === 'rec-del') { var id = t.getAttribute('data-id'); S.rec = S.rec.filter(function (r) { return r.id !== id; }); S.del[id] = Date.now(); persistLocal(); render(); }
+    else if (a === 'rec-add') {
+      var amt = parseFloat($('#r-amt').value), day = parseInt($('#r-day').value, 10), cat = $('#r-cat').value;
+      if (!(amt > 0) || !(day >= 1 && day <= 31)) { $('#r-err').textContent = 'Enter an amount and a day between 1 and 31.'; return; }
+      var n = new Date();
+      S.rec.push({ id: localId(), cat: cat, sub: cat === 'house' ? $('#r-sub').value : '', amount: Math.round(amt * 100) / 100, day: day, note: $('#r-note').value.trim().slice(0, 60), from: n.getFullYear() + '-' + pad(n.getMonth() + 1), ut: Date.now() });
+      applyRecurring(); persistLocal(); toast('Recurring expense added'); render();
+    }
+  });
+  document.addEventListener('input', function (ev) {
+    if (ev.target.id !== 'q') return;
+    q = ev.target.value; render();
+    var el = $('#q'); if (el) { el.focus(); el.setSelectionRange(q.length, q.length); }
   });
   document.addEventListener('change', function (ev) {
     if (ev.target.id === 'filter') { filterCat = ev.target.value; render(); }
