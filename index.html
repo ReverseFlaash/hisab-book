@@ -361,6 +361,21 @@ input[type="number"], input[type="text"], input[type="date"], select {
 </form>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 
+<div id="gate" style="position:fixed;inset:0;z-index:9999;background:var(--bg,#F2F2F7);color:var(--ink,#15202E);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;overflow:auto">
+  <div style="width:100%;max-width:360px;background:var(--surface,#fff);border:1px solid var(--line,#DCE2EB);border-radius:20px;padding:28px 22px;text-align:center;font-family:var(--font-body,system-ui,sans-serif)">
+    <h1 style="margin:0 0 4px;font:600 26px var(--font-display,system-ui,sans-serif)">Hisab Book</h1>
+    <p id="gate-sub" style="margin:0 0 20px;color:var(--muted,#5A6778);font-size:14px">Log in to continue</p>
+    <form id="gate-login" autocomplete="on">
+      <input id="g-id" type="text" inputmode="email" autocomplete="username" placeholder="ID" style="width:100%;box-sizing:border-box;padding:13px 14px;margin-bottom:10px;border:1px solid var(--line,#DCE2EB);border-radius:12px;font-size:16px;background:transparent;color:inherit">
+      <input id="g-pw" type="password" autocomplete="current-password" placeholder="Password" style="width:100%;box-sizing:border-box;padding:13px 14px;margin-bottom:12px;border:1px solid var(--line,#DCE2EB);border-radius:12px;font-size:16px;background:transparent;color:inherit">
+      <button id="g-go" type="submit" style="width:100%;padding:13px;border:0;border-radius:12px;background:var(--accent,#0A6CFF);color:var(--on-accent,#fff);font-size:16px;font-weight:600">Log in</button>
+    </form>
+    <div id="gate-google" hidden>
+      <button id="g-google" type="button" style="width:100%;padding:13px;border:0;border-radius:12px;background:var(--accent,#0A6CFF);color:var(--on-accent,#fff);font-size:16px;font-weight:600">Sign in with Google</button>
+    </div>
+    <p id="gate-msg" role="status" style="min-height:18px;margin:14px 0 0;color:var(--bad,#C73030);font-size:13px"></p>
+  </div>
+</div>
 <script>
 (function () {
   'use strict';
@@ -444,7 +459,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
     return new Promise(function (ok, fail) {
       if (!driveInit()) { fail(new Error('Google script not loaded')); return; }
       D.wait = { ok: ok, fail: fail };
-      D.tc.requestAccessToken({ prompt: interactive ? 'consent' : '' });
+      D.tc.requestAccessToken({ prompt: '' });
     });
   }
   function dfetch(url, opt) {
@@ -477,7 +492,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
   }
   async function driveSync(interactive) {
     try {
-      D.msg = 'Syncing...'; render();
+      D.ok = false; D.msg = 'Syncing...'; render();
       await driveAuth(interactive);
       D.fileId = D.fileId || await driveFind();
       if (D.fileId) {
@@ -486,7 +501,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
         try { localStorage.setItem(LS_KEY, JSON.stringify({ months: S.months, exps: S.exps })); } catch (e) {}
       }
       await driveUpload();
-      D.on = true; try { localStorage.setItem(DRIVE_FLAG, '1'); } catch (e) {}
+      D.on = true; D.ok = true; try { localStorage.setItem(DRIVE_FLAG, '1'); } catch (e) {}
       D.msg = 'Connected. Your data is saved to Google Drive (' + DRIVE_FILE + ').';
     } catch (e) {
       D.msg = D.on ? 'Drive sync failed. Tap Sync now to retry.' : 'Could not sign in. Check the Client ID and that this site is an authorized origin.';
@@ -823,7 +838,7 @@ input[type="number"], input[type="text"], input[type="date"], select {
     html += '<div class="card"><div class="card-head"><h2>Google Drive</h2></div>' +
       '<p class="hint">' + esc(D.msg) + '</p>' +
       '<div class="sheet-actions" style="flex-wrap:wrap">' +
-      (D.on ? '<button type="button" class="primary" data-act="drive-sync">Sync now</button><button type="button" class="ghost" data-act="drive-off">Disconnect</button>'
+      (D.on ? '<button type="button" class="primary" data-act="drive-sync">Sync now</button><button type="button" class="ghost" data-act="signout">Sign out</button>'
             : '<button type="button" class="primary" data-act="drive-on">Sign in with Google</button>') +
       '</div></div>';
     $('#v-settings').innerHTML = html;
@@ -1024,6 +1039,53 @@ input[type="number"], input[type="text"], input[type="date"], select {
   if (window.matchMedia) {
     try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme); } catch (e) {}
   }
+
+
+  /* ---------- login gate ---------- */
+  var AUTH = { salt: '567cb1ce2b6c491facd5a050c253a864', iter: 200000, hash: 'd279293efaa2334211f3b4bd514a05954aa8872c4581e03c509a8759f51b1df8' };
+  function hexOf(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
+  async function authHash(id, pw) {
+    var enc = new TextEncoder();
+    var key = await crypto.subtle.importKey('raw', enc.encode(id + ':' + pw), 'PBKDF2', false, ['deriveBits']);
+    var bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(AUTH.salt), iterations: AUTH.iter }, key, 256);
+    return hexOf(bits);
+  }
+  function gmsg(t) { $('#gate-msg').textContent = t || ''; }
+  function showLogin() {
+    $('#gate').hidden = false; $('#gate').style.display = 'flex';
+    $('#gate-login').hidden = false; $('#gate-google').hidden = true;
+    $('#gate-sub').textContent = 'Log in to continue'; $('#g-pw').value = ''; gmsg('');
+  }
+  function hideGate() { $('#gate').hidden = true; $('#gate').style.display = 'none'; }
+  async function toGoogle(silentOnly) {
+    $('#gate-login').hidden = true; $('#gate-google').hidden = false;
+    $('#gate-sub').textContent = 'Now sign in with Google to load your data'; gmsg('');
+    try { if (localStorage.getItem(DRIVE_FLAG)) { gmsg('Connecting...'); await driveSync(false); } } catch (e) {}
+    if (D.ok) { hideGate(); render(); } else { gmsg(silentOnly ? '' : 'Tap the button to sign in.'); }
+  }
+  $('#gate-login').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var id = $('#g-id').value.replace(/\s+/g, '').toLowerCase(), pw = $('#g-pw').value;
+    gmsg('Checking...');
+    try {
+      var ok = (await authHash(id, pw)) === AUTH.hash;
+      if (!ok) { gmsg('Wrong ID or password.'); $('#g-pw').value = ''; return; }
+    } catch (e) { gmsg('Login needs a secure (https) connection.'); return; }
+    try { sessionStorage.setItem('hisab-auth', '1'); } catch (e) {}
+    toGoogle(false);
+  });
+  $('#g-google').addEventListener('click', async function () {
+    gmsg('Signing in...'); await driveSync(true);
+    if (D.ok) { hideGate(); render(); } else gmsg('Sign in failed. Try again.');
+  });
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest('[data-act="signout"]'); if (!t) return;
+    try { sessionStorage.removeItem('hisab-auth'); localStorage.removeItem(DRIVE_FLAG); } catch (e) {}
+    D.on = false; D.ok = false; D.token = null; D.fileId = null;
+    D.msg = 'Signed out.'; showLogin();
+  });
+  var authed = false; try { authed = sessionStorage.getItem('hisab-auth') === '1'; } catch (e) {}
+  if (authed) { showLogin(); $('#gate-login').hidden = true; toGoogle(true); } else showLogin();
 
   fillCats();
   var h = (location.hash || '').slice(1);
